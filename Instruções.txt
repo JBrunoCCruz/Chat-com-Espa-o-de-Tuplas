@@ -1,0 +1,8 @@
+1 - É necessário o Java 11 para que se possa utilizar o JavaSpace.
+    No Windows, por exemplo, alterar o valor da variável de ambiente
+    JAVA_HOME para o diretório que contém o JDK 11.
+2 - Ir até a pasta river->exemplo->space, e executar 'start-services.bat'
+    pelo prompt de comando
+3 - Executar o .jar do programa por linha de comando: java -jar chatcomtuplas.jar
+
+4 - Os .java principais ficam no pacote 'chat'

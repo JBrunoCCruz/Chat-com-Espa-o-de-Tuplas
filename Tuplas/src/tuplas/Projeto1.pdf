@@ -1,0 +1,80 @@
+/*
+* Cristiano
+* Felipe
+* João Bruno
+*/
+
+// a0 = 0, a1 = 2.6943e-5, a2 = 2.6943e-5, b1 = -1.9989, b2 = 0.9989
+
+void Initialize.Timer (void) {
+	T0CS = 0;	// Select f/4 clock for the TMR0
+	PSA = 0;	// Select pre-scaler
+	PS0 = 1;	// Set pre-scalare to 64
+	PS1 = 0;	// PS2, PSI, PS0 = 101
+	PS2 = 1;	
+	TMR0 = 100;	// Load TMR0 = 100
+	T0IE = 1;	// Enable TMR0 interrupts
+	T0IF = 0;	// Clear TMR0 interrupt flag
+}
+
+#include <pic.h>
+#define DA.Write RC0
+
+float DA_LSB, AD_LSB, a0, a1, a2, b1, b2, M1, M2, rk, rk_1, rk_2, ek, sk, yk, uk;
+
+void Initialize.Timer (void) {}
+
+void Read_AD_Input (void {}
+
+void interrupt ISR (void) {
+	Read_AD_Input ();			// Read A/D input
+	
+	ek = sk - yk;				// Calculate error term
+	rk = ek + M1;				
+	yk = a0 * rk + M2;			// Calculate output
+	uk = yk * DA_LSB;
+	PORTB = uk;					// Send to PORT B
+	DA_Write = 0;				// Write to D/A converter
+	DA_Write = 1;				// Update variables
+	
+	rk_2 = rk_1;
+	rk_1 = rk;
+	M1 = -b1 * rk_1 - b2 * rk_2;
+	M2 = a1 * rk_1 + a2 * rk_2;
+	
+	T0IF = 0;					// Re-enable timer interrupts
+}
+
+void main (void) {
+	a0 = 0; a1 = 2.6943e-5; a2 = 2.6943e-5;
+	b1 = -1.9989; b2 = 0.9989;
+	
+	M1 = 0; M2 = 0; rk = 0; rk_1 = 0; rk_2 = 0;
+	sk = 1.0;
+	DA_LSB = 5000.0 / 1024.0;
+	
+	TRISA = 1;					// RA0 (AN0) is input
+	TRISB = 0;					// PORT B is output
+	TRISC = 0;					// RC0 is output
+	
+	DA_Write = 1;				// Disable D/A converter
+	
+	Initialize_AD();			// Initialize A/D converter
+	Initialize.Timer();			// Initialize timer interrupts
+	ei();						// Enable interrupts
+	for (;;);					// Wait for interrupt
+}
+
+void Initialize_AD (void) {
+	ADCON1 = 0 x 8E;			// Configure AN0 for +5V reference
+	ADCON0 = 0 x 41;			// Select A/D converter clock
+}
+
+void Read_AD_Input (void) {
+	ADCON0 = 0 x 45;					// Start A/D conversion
+	while ((ADCON0 & 4) != 0);			// Wait until conversion completes
+	y_high = ADRESH;					// High 2 bytes of converted data
+	y_low = ADRESL;						// Low bye of converted data
+	yk = 256.0 * y_high + y_low;		// Converted data in yk
+	yk = yk * AD_LSB;					// Sensor output in mV
+}
